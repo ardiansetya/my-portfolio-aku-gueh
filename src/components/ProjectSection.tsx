@@ -2,84 +2,70 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Github } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { getImageUrl } from "@/lib/supabase/storage";
 import { Button } from "./ui/button";
+import Image from "next/image";
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  tech: string[];
+  live_url: string | null;
+  github_url: string | null;
+  color_from: string;
+  color_to: string;
+  featured: boolean;
+  image_url: string | null;
+}
 
 const categories = ["All", "Web", "Mobile", "Design"];
 
-const projects = [
-  {
-    id: 1,
-    title: "E-Commerce Platform",
-    description:
-      "A modern online store with real-time inventory, Stripe payments, and admin dashboard.",
-    category: "Web",
-    tech: ["React", "Node.js", "PostgreSQL", "Stripe"],
-    liveUrl: "#",
-    githubUrl: "#",
-    color: "from-primary/20 to-accent/20",
-  },
-  {
-    id: 2,
-    title: "Fitness Tracker App",
-    description:
-      "Cross-platform mobile app for tracking workouts, nutrition, and health metrics.",
-    category: "Mobile",
-    tech: ["React Native", "Firebase", "TypeScript"],
-    liveUrl: "#",
-    githubUrl: "#",
-    color: "from-accent/20 to-primary/20",
-  },
-  {
-    id: 3,
-    title: "SaaS Dashboard",
-    description:
-      "Analytics dashboard with real-time data visualization and team collaboration features.",
-    category: "Web",
-    tech: ["Next.js", "Tailwind", "D3.js", "Supabase"],
-    liveUrl: "#",
-    githubUrl: "#",
-    color: "from-primary/30 to-primary/5",
-  },
-  {
-    id: 4,
-    title: "Brand Identity System",
-    description:
-      "Complete brand identity including logo, typography, color system, and design tokens.",
-    category: "Design",
-    tech: ["Figma", "Illustrator", "Design Tokens"],
-    liveUrl: "#",
-    githubUrl: "#",
-    color: "from-accent/30 to-accent/5",
-  },
-  {
-    id: 5,
-    title: "Task Management App",
-    description:
-      "Kanban-style project management tool with real-time updates and team features.",
-    category: "Web",
-    tech: ["React", "TypeScript", "WebSocket", "Redis"],
-    liveUrl: "#",
-    githubUrl: "#",
-    color: "from-primary/15 to-accent/15",
-  },
-  {
-    id: 6,
-    title: "Social Media App",
-    description:
-      "A feature-rich social platform with stories, messaging, and content discovery.",
-    category: "Mobile",
-    tech: ["React Native", "GraphQL", "AWS"],
-    liveUrl: "#",
-    githubUrl: "#",
-    color: "from-accent/20 to-primary/10",
-  },
-];
-
-const ProjectsSection = () => {
+export default function ProjectsSection() {
   const [active, setActive] = useState("All");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchProjects() {
+      // Fetch featured projects for public view
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("featured", true)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching projects:", error);
+      } else {
+        setProjects(data || []);
+      }
+      setLoading(false);
+    }
+
+    fetchProjects();
+  }, [supabase]);
+
   const filtered =
     active === "All" ? projects : projects.filter((p) => p.category === active);
+
+  if (loading) {
+    return (
+      <section id="projects" className="section-padding bg-surface/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center py-16">
+            <div className="animate-pulse text-muted-foreground">
+              Loading projects...
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="projects" className="section-padding bg-surface/50">
@@ -123,72 +109,95 @@ const ProjectsSection = () => {
         </motion.div>
 
         {/* Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filtered.map((project) => (
-              <motion.div
-                key={project.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                className="group glass rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-500"
-              >
-                {/* Thumbnail */}
-                <div
-                  className={`h-48 bg-gradient-to-br ${project.color} relative overflow-hidden`}
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 text-muted-foreground">
+            <p>No projects found in this category.</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((project) => (
+                <motion.div
+                  key={project.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4 }}
+                  className="group glass rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-500"
                 >
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-5xl font-black text-foreground/10">
-                      {project.title[0]}
-                    </span>
-                  </div>
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
-                    <a
-                      href={project.liveUrl}
-                      className="p-3 rounded-full bg-primary text-primary-foreground hover:scale-110 transition-transform"
-                    >
-                      <ExternalLink className="h-5 w-5" />
-                    </a>
-                    <a
-                      href={project.githubUrl}
-                      className="p-3 rounded-full bg-secondary text-foreground hover:scale-110 transition-transform"
-                    >
-                      <Github className="h-5 w-5" />
-                    </a>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <span className="text-xs text-primary font-medium uppercase tracking-wider">
-                    {project.category}
-                  </span>
-                  <h3 className="text-lg font-semibold mt-2 mb-2 group-hover:text-primary transition-colors">
-                    {project.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                    {project.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tech.map((t) => (
-                      <span
-                        key={t}
-                        className="text-xs px-2.5 py-1 rounded-full bg-secondary text-muted-foreground"
+                  {/* Thumbnail */}
+                  <div className="h-48 relative overflow-hidden">
+                    {project.image_url ? (
+                      <Image
+                        src={project.image_url}
+                        fill
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div
+                        className={`w-full h-full bg-gradient-to-br ${project.color_from} ${project.color_to} relative`}
                       >
-                        {t}
-                      </span>
-                    ))}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-5xl font-black text-foreground/10">
+                            {project.title[0]}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
+                      {project.live_url && (
+                        <a
+                          href={project.live_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3 rounded-full bg-primary text-primary-foreground hover:scale-110 transition-transform"
+                        >
+                          <ExternalLink className="h-5 w-5" />
+                        </a>
+                      )}
+                      {project.github_url && (
+                        <a
+                          href={project.github_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3 rounded-full bg-secondary text-foreground hover:scale-110 transition-transform"
+                        >
+                          <Github className="h-5 w-5" />
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+
+                  <div className="p-6">
+                    <span className="text-xs text-primary font-medium uppercase tracking-wider">
+                      {project.category}
+                    </span>
+                    <h3 className="text-lg font-semibold mt-2 mb-2 group-hover:text-primary transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.tech.map((t) => (
+                        <span
+                          key={t}
+                          className="text-xs px-2.5 py-1 rounded-full bg-secondary text-muted-foreground"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </section>
   );
-};
-
-export default ProjectsSection;
+}
