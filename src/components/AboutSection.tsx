@@ -11,6 +11,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 const skills = [
   { name: "React", icon: Code2 },
@@ -52,11 +53,13 @@ const AboutSection = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="space-y-6"
           >
-            <div className="w-32 h-32 rounded-2xl bg-secondary border border-border overflow-hidden mb-8">
-              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <span className="text-4xl font-bold text-gradient">A</span>
-              </div>
-            </div>
+            <Image
+              src={"/me.webp"}
+              width={250}
+              height={64}
+              className="rounded-xl object-cover"
+              alt="Ardian Setya Pradana"
+            />
 
             <p className="text-muted-foreground leading-relaxed text-lg">
               Hi, I'm Ardian Setya Pradana, an undergraduate student at Dian
