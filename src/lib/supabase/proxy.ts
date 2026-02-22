@@ -10,7 +10,7 @@ export async function updateSession(request: NextRequest) {
   // variable. Always create a new one on each request.
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
     {
       cookies: {
         getAll() {
@@ -41,19 +41,20 @@ export async function updateSession(request: NextRequest) {
 
   const user = data?.claims;
 
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
-    // no user, potentially respond by redirecting the user to the login page
+  const isLoginPath = request.nextUrl.pathname.startsWith("/login");
+  const isDashboardPath = request.nextUrl.pathname.startsWith("/dashboard");
 
+  // If user is logged in and tries to access login page, redirect to dashboard
+  if (user && isLoginPath) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
-  if (user && request.nextUrl.pathname.startsWith("/login")) {
-    // no user, potentially respond by redirecting the user to the login page
-
+  // If user is not logged in and tries to access dashboard, redirect to login
+  if (!user && isDashboardPath) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 

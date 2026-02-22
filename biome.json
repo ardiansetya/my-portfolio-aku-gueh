@@ -17,8 +17,13 @@
   "linter": {
     "enabled": true,
     "rules": {
-       "correctness": {
+      "correctness": {
         "noChildrenProp": "off"
+      },
+      "a11y": {
+        "noStaticElementInteractions": "off",
+        "useKeyWithClickEvents": "off",
+        "noLabelWithoutControl": "off"
       },
       "recommended": true,
       "suspicious": {
