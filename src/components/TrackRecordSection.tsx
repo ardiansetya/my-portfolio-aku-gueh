@@ -53,7 +53,7 @@ const trackRecords = [
     title: "Web Developer Intern",
     organization: "Kominfo Jawa Tengah",
     description:
-      "6-month internship focused on redesigning elementary school websites with a modern management dashboard",
+      "1-month internship focused on redesigning elementary school websites with a modern management dashboard",
     icon: Briefcase,
     type: "internship",
   },
