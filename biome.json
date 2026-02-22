@@ -19,6 +19,7 @@
     "rules": {
       "recommended": true,
       "suspicious": {
+        "useIterableCallbackReturn": "off",
         "noUnknownAtRules": "off"
       }
     },
