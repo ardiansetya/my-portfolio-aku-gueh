@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { GraduationCap, Briefcase, Code2, Building2 } from "lucide-react";
+import { Briefcase, Building2, Code2, GraduationCap } from "lucide-react";
 
 const trackRecords = [
   {
@@ -81,14 +81,13 @@ const TrackRecordSection = () => {
             Track Record
           </p>
           <h2 className="text-4xl md:text-5xl font-bold">
-            Education &
-            <span className="text-gradient"> Experience</span>
+            Education &<span className="text-gradient"> Experience</span>
           </h2>
         </motion.div>
 
         <div className="relative">
           {/* Timeline line */}
-          <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 h-full w-px bg-gradient-to-b from-primary/50 via-primary/30 to-transparent" />
+          <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 h-full w-px bg-linear-to-b from-primary/50 via-primary/30 to-transparent" />
 
           <div className="space-y-8">
             {trackRecords.map((record, index) => (
