@@ -4,6 +4,7 @@ import FooterSection from "@/components/FooterSection";
 import HeroSection from "@/components/HeroSection";
 import Navbar from "@/components/Navbar";
 import ProjectsSection from "@/components/ProjectSection";
+import TrackRecordSection from "@/components/TrackRecordSection";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       <Navbar />
       <HeroSection />
       <AboutSection />
+      <TrackRecordSection />
       <ProjectsSection />
       <ContactSection />
       <FooterSection />
